@@ -38,3 +38,4 @@ function mask = binarizeWFA(image)
     
 end
 
+

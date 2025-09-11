@@ -6,7 +6,7 @@ clearvars, clc
 % rounding operations.
 
 % miceFolder = 'D:\proj_PNN-Atlas\DATASET'; %UPDATE HERE
-miceFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region2\DATASET';
+miceFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region124\DATASET';
 
 cellPerMice = 15;
 cellSize = 80; %cells will be extracted from a bounding box of side cellSide x cellSide  (Px)

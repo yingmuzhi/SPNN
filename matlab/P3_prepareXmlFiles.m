@@ -10,38 +10,40 @@ clc, clearvars
 % base_path: 包含您所有鼠标文件夹的根目录
 base_path = 'E:\_scj\20250903_FCY_SegPNN\src\output';
 % mouse: 当前要处理的鼠标文件夹的名称
-mouse = 'Mouse1Month8Region2';
+mouse = 'Mouse1Month8Region124';
 % channelNames: 根据您的实验设置通道名称
 % 例如: channelNames = ["wfa","pv"];
 channelNames = ["wfa","pv","bf"];
 % --- 配置结束 ---
 
-fprintf('步骤1：检查/创建 miceData.xlsx...\n');
+fprintf('步骤1：检查/更新 miceData.xlsx...\n');
 
 mice_data_file = fullfile(base_path, 'miceData.xlsx');
 
+% 获取当前目录下所有小鼠文件夹
+fileStruct = dir(base_path);
+currentMiceArray = {};
+j = 1;
+for i = 1:size(fileStruct, 1)
+    % 确保只添加目录，并排除 '.' 和 '..'
+    if fileStruct(i).isdir && ~strcmp(fileStruct(i).name, '.') && ~strcmp(fileStruct(i).name, '..')
+        currentMiceArray{j} = fileStruct(i).name;
+        j = j + 1;
+    end
+end
+
+currentMices = string(currentMiceArray)';
+
+if isempty(currentMices)
+    error('在 base_path "%s" 中没有找到任何小鼠文件夹。', base_path);
+end
+
+% 检查miceData.xlsx是否存在
 if ~isfile(mice_data_file)
     fprintf('未找到 miceData.xlsx，正在创建...\n');
     
-    fileStruct = dir(base_path);
-    miceArray = {};
-    j = 1;
-    for i = 1:size(fileStruct, 1)
-        % 确保只添加目录，并排除 '.' 和 '..'
-        if fileStruct(i).isdir && ~strcmp(fileStruct(i).name, '.') && ~strcmp(fileStruct(i).name, '..')
-            miceArray{j} = fileStruct(i).name;
-            j = j + 1;
-        end
-    end
-
-    mices = string(miceArray)';
-    
-    if isempty(mices)
-        error('在 base_path "%s" 中没有找到任何小鼠文件夹。', base_path);
-    end
-
-    miceT = table(mices, strings(size(mices,1),1), strings(size(mices,1),1), ...
-        strings(size(mices,1),1), strings(size(mices,1),1), ...
+    miceT = table(currentMices, strings(size(currentMices,1),1), strings(size(currentMices,1),1), ...
+        strings(size(currentMices,1),1), strings(size(currentMices,1),1), ...
         'VariableNames', {'mouseID', 'treatment', 'genotype', 'sex', 'age'});
 
     writetable(miceT, mice_data_file);
@@ -49,7 +51,34 @@ if ~isfile(mice_data_file)
     disp('请手动填写该文件中的小鼠信息，然后重新运行此脚本。');
     return;
 else
-    fprintf('已找到 miceData.xlsx 文件。\n');
+    fprintf('已找到 miceData.xlsx 文件，正在检查是否需要更新...\n');
+    
+    % 读取现有的miceData.xlsx
+    existingMiceTable = readtable(mice_data_file);
+    existingMiceIDs = string(existingMiceTable.mouseID);
+    
+    % 找到新的小鼠（不在现有表格中的）
+    newMice = setdiff(currentMices, existingMiceIDs);
+    
+    if ~isempty(newMice)
+        fprintf('发现 %d 个新小鼠需要添加到miceData.xlsx: %s\n', length(newMice), strjoin(newMice, ', '));
+        
+        % 创建新小鼠的表格
+        newMiceTable = table(newMice, strings(size(newMice,1),1), strings(size(newMice,1),1), ...
+            strings(size(newMice,1),1), strings(size(newMice,1),1), ...
+            'VariableNames', {'mouseID', 'treatment', 'genotype', 'sex', 'age'});
+        
+        % 合并表格
+        updatedMiceTable = [existingMiceTable; newMiceTable];
+        
+        % 保存更新后的表格
+        writetable(updatedMiceTable, mice_data_file);
+        fprintf('miceData.xlsx 已更新，添加了新的小鼠信息。\n');
+        fprintf('请手动填写新添加小鼠的信息，然后重新运行此脚本。\n');
+        return;
+    else
+        fprintf('miceData.xlsx 已是最新，无需更新。\n');
+    end
 end
 
 
