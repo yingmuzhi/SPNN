@@ -227,6 +227,8 @@ def main():
                        help="根据 --oc-mode 解释: order 模式下为 [R,G,B] 分别使用的源通道索引 (0=A,1=B,2=C); positions 模式下为 A/B/C 各自要放到的输出位置 (0=R,1=G,2=B)")
     parser.add_argument("--oc-mode", choices=["order", "positions"], default="order",
                        help="解释 --output-channels 的方式: order=指定RGB各自来自哪个输入通道; positions=指定A/B/C各自输出到RGB的哪个位置")
+    parser.add_argument("--bit-depth", "-bd", type=int, choices=[8, 16], default=8,
+                       help="输出位深，默认 8 位，可选 16 位 (会按比例缩放)")
     parser.add_argument("--prefix", "-p", default="Mouse1Month8",
                        help=f"生成文件名开头追加的前缀 (例如: Mouse1Month8，最终如 Mouse1Month8Region124_001...) ")
     parser.add_argument("--suffix", "-s", default="_A1_1",
@@ -321,6 +323,37 @@ def main():
                     red_source, green_source, blue_source, 0, 1, 2
                 )
             print("通道组合完成!")
+
+            # 根据输出位深进行转换
+            def convert_bit_depth(arr, bit_depth: int):
+                if bit_depth == 8:
+                    # 统一转为 uint8
+                    if arr.dtype == np.uint8:
+                        return arr
+                    arrf = arr.astype(np.float32)
+                    minv = arrf.min()
+                    maxv = arrf.max()
+                    scale = 255.0 / (maxv - minv + 1e-8)
+                    out = ((arrf - minv) * scale).astype(np.uint8)
+                    return out
+                elif bit_depth == 16:
+                    # 转为 uint16
+                    if arr.dtype == np.uint16:
+                        return arr
+                    if arr.dtype == np.uint8:
+                        return (arr.astype(np.uint16) * 257)
+                    arrf = arr.astype(np.float32)
+                    minv = arrf.min()
+                    maxv = arrf.max()
+                    scale = 65535.0 / (maxv - minv + 1e-8)
+                    out = ((arrf - minv) * scale).astype(np.uint16)
+                    return out
+                else:
+                    raise ValueError("不支持的位深，仅支持 8 或 16")
+
+            original_dtype = combined_data.dtype
+            combined_data = convert_bit_depth(combined_data, args.bit_depth)
+            print(f"按位深转换完成: {original_dtype} -> {combined_data.dtype}")
 
             # 根据文件名派生前缀，例如 region1_xxx.tif -> Region1
             derived_prefix = derive_region_prefix(tif_path)

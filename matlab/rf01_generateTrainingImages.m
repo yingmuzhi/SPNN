@@ -1,12 +1,20 @@
 %% EXTRACTING TRAINING IMAGES FROM DATASET
 clearvars, clc
 
+% 确保工具函数在路径中（例如 extractSubImage, cellLabeler 等）
+try
+    thisDir = fileparts(mfilename('fullpath'));
+    addpath(thisDir);
+    addpath(fullfile(thisDir, 'utilities'));
+catch
+end
+
 %% INDICATE FILE FOLDER AND IMAGE PARAMETERS
 % Note that the number of cells per animal can be higher due to
 % rounding operations.
 
 % miceFolder = 'D:\proj_PNN-Atlas\DATASET'; %UPDATE HERE
-miceFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region124\DATASET';
+miceFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\DATASET';
 
 cellPerMice = 15;
 cellSize = 80; %cells will be extracted from a bounding box of side cellSide x cellSide  (Px)
@@ -159,10 +167,14 @@ for chIdx = 1:length(channels)
     
     fprintf('通道 %s: 总共提取了 %d 个训练图像\n', channel, indabs - 1);
     
-    % 立即为当前通道进行标注
+    % 立即为当前通道进行标注（阻塞等待，直到编辑窗口关闭）
     fprintf('开始标记通道 %s 的训练图像...\n', channel);
     try
-        clab = cellLabeler(trainingFolder, channel, 1);
+        ch = char(channel); % cellLabeler 的 typed arguments 期望 char
+        clab = cellLabeler(trainingFolder, ch, 1);
+        if ~isempty(clab) && isvalid(clab.fig_image)
+            uiwait(clab.fig_image);  % 等待用户编辑/保存完成
+        end
         fprintf('通道 %s 标记完成\n', channel);
     catch ME
         fprintf('通道 %s 标记失败: %s\n', channel, ME.message);

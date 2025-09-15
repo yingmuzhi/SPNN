@@ -1,8 +1,11 @@
 clearvars, clc
 
 % -------------------------------------------------------------------------
-defaultFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region124\DATASET';
-outputFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region124\RESULTS';
+defaultFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\DATASET';
+outputFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\RESULTS';
+% 手动输入regionid选项
+useManualRegionID = true;       % 设置为true使用手动输入的regionid
+manualRegionID = 6;           % 手动输入的regionid值（可以根据需要修改）
 
 channels = ["wfa", "pv"];
 % channels = ["wfa"]; % 只处理wfa
@@ -13,10 +16,6 @@ pixelSize = 0.414;       % in micrometers
 % 设置是否跳过位移场和脑区注释
 skipDisplacementFields = true;  % 设置为true跳过位移场
 skipAnnotationVolume = true;     % 设置为true跳过脑区注释
-
-% 手动输入regionid选项
-useManualRegionID = true;       % 设置为true使用手动输入的regionid
-manualRegionID = 124;           % 手动输入的regionid值（可以根据需要修改）
 
 % 限制分析的切片数量（设置为0表示分析所有切片）
 maxSlicesToAnalyze = 0;  % 设置为0表示分析所有切片

@@ -338,10 +338,10 @@ classdef cellClassifier < handle
             g = gabor(wavelength,orientation);
             gabormag = imgaborfilt(im, g);
 
-            ypos = ones(1,numCols).* [1:numCols]';
-            ypos = ypos - numCols/2;
-            xpos = ones(1,numRows)'.* [1:numRows];
-            xpos = xpos - numRows/2;
+            % 生成与图像同尺寸的坐标特征 (行=Y, 列=X)
+            [xpos, ypos] = meshgrid(1:numCols, 1:numRows);
+            xpos = xpos - numCols/2;
+            ypos = ypos - numRows/2;
             features = cat(3,im, xpos, ypos,gabormag);
 
             featprefix = cellstr(repmat("gabor", [1 size(g,2)]));

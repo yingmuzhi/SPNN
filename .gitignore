@@ -3,3 +3,6 @@ src/
 
 # 忽略所有.asv文件
 *.asv
+
+#
+*/_legacy/

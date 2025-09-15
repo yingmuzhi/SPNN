@@ -1,4 +1,4 @@
-rmpath('E:\_scj\20250311_DIP\software\DIPimage 2.9\common\dipimage');
+% rmpath('E:\_scj\20250311_DIP\software\DIPimage 2.9\common\dipimage');
 % TRAIN classifier for PNNs and PVs (multi-channel)
 clc, clearvars
 
@@ -6,7 +6,7 @@ clc, clearvars
 channels = ["wfa", "pv"];
 
 % 数据集根目录
-basePath = "E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region124\DATASET";
+basePath = "E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\DATASET";
 
 % 通道参数（可根据需要调整）
 channelParams = struct();

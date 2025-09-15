@@ -3,8 +3,11 @@ clearvars, clc
 % -------------------------------------------------------------------------
 % 配置参数
 % -------------------------------------------------------------------------
-defaultFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region124\DATASET';
-outputFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region124\RESULTS';
+defaultFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\DATASET';
+outputFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\RESULTS';
+% 手动输入regionid选项
+useManualRegionID = true;       % 设置为true使用手动输入的regionid
+manualRegionID = 6;           % 手动输入的regionid值（可以根据需要修改）
 
 % 支持批量处理的通道
 channels = ["wfa", "pv"];
@@ -15,10 +18,6 @@ minDist = 15;  % 共定位判断的最小距离阈值（像素）
 % 设置是否跳过位移场和脑区注释
 skipDisplacementFields = true;  % 设置为true跳过位移场
 skipAnnotationVolume = true;     % 设置为true跳过脑区注释
-
-% 手动输入regionid选项
-useManualRegionID = true;       % 设置为true使用手动输入的regionid
-manualRegionID = 124;           % 手动输入的regionid值（可以根据需要修改）
 
 % 限制分析的切片数量（设置为0表示分析所有切片）
 maxSlicesToAnalyze = 0;  % 设置为0表示分析所有切片
@@ -178,16 +177,26 @@ for imgIdx = 1:length(commonBaseImages)
     coord_wfa(coord_wfa < 1) = 1;
     coord_pv(coord_pv < 1) = 1;
     
-    % 计算距离矩阵
-    D = pdist2(coord_pv, coord_wfa, 'euclidean');
-    D(D > minDist) = nan;
-    [minDistances, minIndices] = min(D, [], 'omitnan');
+    % 计算距离矩阵 (行: WFA, 列: PV)
+    D = pdist2(coord_wfa, coord_pv, 'euclidean'); % size: nWFA x nPV
+    % 超过阈值的距离视为无效
+    D(D > minDist) = inf;
+    % 对每个 WFA 找最近的 PV
+    [minDistances, pvIndices] = min(D, [], 2, 'omitnan'); % nWFA x 1
+    validMask = isfinite(minDistances);
+    pvIndices(~validMask) = 0; % 无效标记
+    % 边界与有效性检查
+    pvIndices = round(pvIndices);
+    inRangeMask = pvIndices >= 1 & pvIndices <= height(pvInImage);
+    validMask = validMask & inRangeMask;
     
-    % 识别共定位的细胞
-    colocalized_pv = pvInImage(minIndices(~isnan(minDistances)), :);
-    colocalized_wfa = wfaInImage(~isnan(minDistances), :);
-    notColocalized_wfa = wfaInImage(isnan(minDistances), :);
-    notColocalized_pv = pvInImage(setdiff(1:height(pvInImage), minIndices(~isnan(minDistances))), :);
+    % 识别共定位与非共定位
+    colocalized_wfa = wfaInImage(validMask, :);
+    colocalized_pv = pvInImage(pvIndices(validMask), :);
+    notColocalized_wfa = wfaInImage(~validMask, :);
+    usedPvIdx = unique(pvIndices(validMask));
+    usedPvIdx(usedPvIdx==0) = [];
+    notColocalized_pv = pvInImage(setdiff(1:height(pvInImage), usedPvIdx), :);
     
     num_colocalized = height(colocalized_pv);
     num_wfa_only = height(notColocalized_wfa);
