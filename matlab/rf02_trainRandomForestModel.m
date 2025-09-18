@@ -6,7 +6,7 @@ clc, clearvars
 channels = ["wfa", "pv"];
 
 % 数据集根目录
-basePath = "E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\DATASET";
+basePath = "E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region10\DATASET";
 
 % 通道参数（可根据需要调整）
 channelParams = struct();

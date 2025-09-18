@@ -14,9 +14,12 @@ end
 % rounding operations.
 
 % miceFolder = 'D:\proj_PNN-Atlas\DATASET'; %UPDATE HERE
-miceFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\DATASET';
+if ~exist('miceFolder','var') || isempty(miceFolder)
+    miceFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region10\DATASET';
+end
 
 cellPerMice = 15;
+
 cellSize = 80; %cells will be extracted from a bounding box of side cellSide x cellSide  (Px)
 
 % 支持同时处理多个通道

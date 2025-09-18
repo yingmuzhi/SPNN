@@ -3,11 +3,11 @@ clearvars, clc
 % -------------------------------------------------------------------------
 % 配置参数
 % -------------------------------------------------------------------------
-defaultFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\DATASET';
-outputFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region6\RESULTS';
+defaultFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region10\DATASET';
+outputFolder = 'E:\_scj\20250903_FCY_SegPNN\src\output\Mouse1Month8Region10\RESULTS';
 % 手动输入regionid选项
 useManualRegionID = true;       % 设置为true使用手动输入的regionid
-manualRegionID = 6;           % 手动输入的regionid值（可以根据需要修改）
+manualRegionID = 10;           % 手动输入的regionid值（可以根据需要修改）
 
 % 支持批量处理的通道
 channels = ["wfa", "pv"];

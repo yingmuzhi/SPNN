@@ -5,7 +5,7 @@ clearvars, clc
 % base_path: 包含您所有鼠标文件夹的根目录
 base_path = 'E:\_scj\20250903_FCY_SegPNN\src\output';
 % mouse: 当前要处理的鼠标文件夹的名称
-mouse = 'Mouse1Month8Region6';
+mouse = 'Mouse1Month8Region10';
 % --- 配置结束 ---
 
 
